@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Stile CSS avanzato: Risoluzione del problema di scorrimento a vuoto, testi scuri a contrasto elevato
+# Stile CSS avanzato: Sfondi bianchi solidi, contrasto assoluto in nero/blu scuro, font grandi al 150-200%
 custom_css = """
     <head>
         <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,74 +28,76 @@ custom_css = """
     .viewerBadge_container__1QSob {display: none !important;}
     div[data-testid="stToolbar"] {display: none !important;}
     
-    /* Blocca lo scorrimento a vuoto della pagina e imposta lo sfondo fisso */
+    /* Sfondo generale fisso e pulito */
     html, body, [data-testid="stAppViewContainer"] {
-        background: linear-gradient(rgba(240, 243, 246, 0.96), rgba(240, 243, 246, 0.96)), 
-                    url("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80");
+        background: #f1f5f9;
+        background-image: linear-gradient(rgba(241, 245, 249, 0.95), rgba(241, 245, 249, 0.95)), 
+                          url("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
         overflow-x: hidden;
     }
 
-    /* Testi generali grandi, scuri e ad altissima visibilità */
+    /* Tipografia ingrandita del 150-200% e colori ad altissimo contrasto */
     html, body, [class*="css"] {
-        font-size: 1.3rem !important;
-        color: #111111 !important;
+        font-size: 1.35rem !important;
+        color: #000000 !important;
     }
     
     h1, h2, h3, h4, h5, h6 {
         color: #0b132b !important;
-        font-weight: 800 !important;
+        font-weight: 900 !important;
     }
 
     p, span, label, div, .stMarkdown {
-        color: #1c2541 !important;
-        font-weight: 600 !important;
+        color: #0f172a !important;
+        font-weight: 700 !important;
     }
 
-    /* Contenitore principale stabile per evitare sfarfallii o rimbalzi dello scroll */
+    /* Card principale a sfondo bianco solido opaco per isolare i contenuti ed eliminare ogni trasparenza */
     section.main > div {
         background-color: #ffffff !important;
         padding: 2.5rem;
         border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         border: 2px solid #cbd5e1;
-        margin-top: 0.5rem;
+        margin-top: 1rem;
         margin-bottom: 2rem;
     }
 
-    /* Pulsanti grandi, professionali e ben visibili */
+    /* Pulsanti grandi, moderni e ad alto contrasto */
     .stButton>button {
         border-radius: 12px;
-        font-size: 1.4rem !important;
-        font-weight: 700 !important;
-        padding: 0.85rem 1rem !important;
+        font-size: 1.45rem !important;
+        font-weight: 800 !important;
+        padding: 0.9rem 1rem !important;
         width: 100%;
-        background-color: #1d4ed8 !important;
+        background-color: #0284c7 !important;
         color: #ffffff !important;
         border: none;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
     }
     
     .stButton>button:hover {
-        background-color: #1e40af !important;
+        background-color: #0369a1 !important;
     }
 
-    /* Campi di input con sfondi chiari e testo scuro nitido */
+    /* Campi di input con sfondi chiari solidi e testo in nero pieno */
     input, select, textarea {
-        font-size: 1.3rem !important;
+        font-size: 1.35rem !important;
         background-color: #f8fafc !important;
-        color: #0f172a !important;
+        color: #000000 !important;
         font-weight: 700 !important;
         border-radius: 8px !important;
-        border: 2px solid #94a3b8 !important;
+        border: 2px solid #64748b !important;
     }
     
-    /* Etichette dei campi in grassetto scuro */
+    /* Etichette dei campi in grassetto nerissimo */
     .stTextInput label, .stSelectbox label, .stDateInput label, .stNumberInput label, .stRadio label {
-        font-weight: 800 !important;
+        font-weight: 900 !important;
         color: #0b132b !important;
-        font-size: 1.3rem !important;
+        font-size: 1.35rem !important;
     }
     </style>
 """
