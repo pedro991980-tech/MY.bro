@@ -4,19 +4,17 @@ from datetime import date
 from classeviva import Session
 from twilio.rest import Client
 
-# Logo ufficiale PagApp (Foto 1) utilizzato come icona e branding
-URL_LOGO_PAGAPP = "https://i.ibb.co/6y402yB/pagapp-logo.png"
-# Link di fallback affidabile per l'icona grafica del logo
-ICON_PAGAPP = "https://img.icons8.com/color/196/checked-checkbox.png"
+# Riferimento diretto al file logo caricato nella cartella del progetto GitHub
+LOGO_FILE = "logo.png"
 
 st.set_page_config(
     page_title="PagApp - Gestione Appuntamenti e Pagamenti",
-    page_icon="💼",
+    page_icon=LOGO_FILE,
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Stile CSS avanzato: Sfondo (Foto 2), Ingrandimento Testo (+200%) e pulizia interfaccia
+# Stile CSS avanzato: Sfondo, Ingrandimento Testo (+200%) e pulizia interfaccia
 custom_css = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -24,7 +22,7 @@ custom_css = """
     .viewerBadge_container__1QSob {display: none !important;}
     div[data-testid="stToolbar"] {display: none !important;}
     
-    /* Sfondo a tema ufficio/segreteria (ispirato a Foto 2) con overlay leggibile */
+    /* Sfondo a tema ufficio/segreteria con overlay leggibile */
     .stApp {
         background: linear-gradient(rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.94)), 
                     url("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80");
@@ -87,7 +85,10 @@ if not st.session_state.avviato:
     
     col_1, col_2, col_3 = st.columns([1, 2, 1])
     with col_2:
-        st.image(ICON_PAGAPP, use_container_width=True)
+        try:
+            st.image(LOGO_FILE, use_container_width=True)
+        except:
+            st.info("Logo in caricamento...")
         st.write("")
         if st.button("🚀 Entra in PagApp", type="primary"):
             st.session_state.avviato = True
@@ -95,7 +96,10 @@ if not st.session_state.avviato:
 else:
     col_head1, col_head2, col_head3 = st.columns([1, 4, 1])
     with col_head1:
-        st.image(ICON_PAGAPP, width=65)
+        try:
+            st.image(LOGO_FILE, width=65)
+        except:
+            pass
     with col_head2:
         st.markdown("### 💼 PagApp Hub")
     with col_head3:
