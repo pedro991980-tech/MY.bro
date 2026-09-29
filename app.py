@@ -5,13 +5,13 @@ from classeviva import Session
 from twilio.rest import Client
 
 st.set_page_config(
-    page_title="MYbro - Assistente Personale",
-    page_icon="📞",
+    page_title="PagApp - Gestione Appuntamenti e Pagamenti",
+    page_icon="💼",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Stile visivo pulito ed elegante (ispirato alla palette moderna / Foto 1) e pulizia interfaccia Streamlit
+# Stile visivo professionale, pulito e coordinato con l'identità visiva e rimozione badge Streamlit
 custom_css = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -19,8 +19,11 @@ custom_css = """
     .viewerBadge_container__1QSob {display: none !important;}
     div[data-testid="stToolbar"] {display: none !important;}
     
-    .main {
-        background-color: #f8f9fa;
+    .stApp {
+        background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), 
+                    url("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80");
+        background-size: cover;
+        background-position: center;
     }
     .stButton>button {
         border-radius: 8px;
@@ -30,8 +33,10 @@ custom_css = """
 """
 st.markdown(custom_css, unsafe_allow_html=True)
 
-# Logo / Icona professionale dell'assistente da ufficio (ispirato alla Foto 2)
-LOGO_SEGRETARIO = "https://img.icons8.com/color/96/customer-support.png"
+# Logo ufficiale PagApp (Foto 1)
+LOGO_PAGAPP = "https://i.ibb.co/6y402yB/pagapp-logo.png" # URL di riferimento visivo ufficiale PagApp
+# Se preferisci l'immagine grafica diretta del logo con calendario e spunta:
+LOGO_PRINCIPALE = "https://img.icons8.com/color/196/checked-checkbox.png"
 
 if "avviato" not in st.session_state:
     st.session_state.avviato = False
@@ -39,31 +44,29 @@ if "avviato" not in st.session_state:
 if "menu_attivo" not in st.session_state:
     st.session_state.menu_attivo = "💳 Pagamenti, Scadenze & Auto"
 
-# Stati per la compilazione automatica tramite fotocamera
 if "scansione_desc" not in st.session_state:
     st.session_state.scansione_desc = ""
 if "scansione_imp" not in st.session_state:
     st.session_state.scansione_imp = 0.0
 
 if not st.session_state.avviato:
-    st.markdown("<h1 style='text-align: center; color: #1e3d59;'>📞 MYbro</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align: center; color: #576574;'>Il tuo assistente personale intelligente e centrale</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #8395a7;'>Gestione integrata di pagamenti, veicoli, appuntamenti, scuola e spese con notifiche WhatsApp.</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #1e3d59;'>💼 PagApp</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: #0077b6;'>Gestione Appuntamenti e Pagamenti</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #485460;'>Il tuo assistente professionale integrato per pagamenti, veicoli, scuola e spese con notifiche WhatsApp.</p>", unsafe_allow_html=True)
     
     col_1, col_2, col_3 = st.columns([1, 2, 1])
     with col_2:
-        st.image(LOGO_SEGRETARIO, use_container_width=True)
+        st.image("https://img.icons8.com/color/144/calendar--v1.png", use_container_width=True)
         st.write("")
-        if st.button("🚀 Entra in MYbro", type="primary", use_container_width=True):
+        if st.button("🚀 Entra in PagApp", type="primary", use_container_width=True):
             st.session_state.avviato = True
             st.rerun()
 else:
-    # Intestazione con logo e pulsante di uscita alla Home
     col_head1, col_head2, col_head3 = st.columns([1, 4, 1])
     with col_head1:
-        st.image(LOGO_SEGRETARIO, width=60)
+        st.image("https://img.icons8.com/color/96/calendar--v1.png", width=55)
     with col_head2:
-        st.markdown("### MYbro Hub Operativo")
+        st.markdown("### 💼 PagApp Hub")
     with col_head3:
         if st.button("🏠 Home"):
             st.session_state.avviato = False
@@ -111,7 +114,7 @@ else:
     # ================= SEZIONE 1: PAGAMENTI, SCADENZE & AUTO CON FOTOCAMERA =================
     if menu == "💳 Pagamenti, Scadenze & Auto":
         st.subheader("💳 Pagamenti, Scadenze & Gestione Auto")
-        st.write("Usa la fotocamera per scannerizzare una bolletta o un codice, oppure seleziona l'ambito desiderato.")
+        st.write("Usa la fotocamera per scannerizzare bollette o codici, oppure seleziona l'ambito desiderato.")
 
         usa_fotocamera = st.checkbox("📷 Attiva fotocamera per riconoscimento automatico")
 
@@ -142,7 +145,7 @@ else:
                     st.error("Compila tutti i campi obbligatori.")
                 else:
                     messaggio = (
-                        f"💳 *MYbro - Pagamento Eseguito*\n"
+                        f"💼 *PagApp - Pagamento Eseguito*\n"
                         f"• Categoria: {categoria}\n"
                         f"• Descrizione: {descrizione}\n"
                         f"• Importo: €{importo:.2f}\n"
@@ -170,7 +173,7 @@ else:
                         st.error("Inserisci i dati di pagamento.")
                     else:
                         msg_auto = (
-                            f"🚗 *MYbro - Pagamento Auto*\n"
+                            f"💼 *PagApp - Pagamento Auto*\n"
                             f"• Targa: {targa}\n"
                             f"• Voce: {voce_auto}\n"
                             f"• Importo: €{importo_auto:.2f}\n"
@@ -192,7 +195,7 @@ else:
 
         if st.button("Salva Appuntamento e Notifica", type="primary"):
             if titolo_appunt:
-                messaggio_app = f"📅 *MYbro - Promemoria Appuntamento*\n• Oggetto: {titolo_appunt} ({categoria_appunt})\n• Data: {data_appunt} ore {ora_appunt}"
+                messaggio_app = f"💼 *PagApp - Promemoria Appuntamento*\n• Oggetto: {titolo_appunt} ({categoria_appunt})\n• Data: {data_appunt} ore {ora_appunt}"
                 successo, res = invia_notifica_whatsapp(messaggio_app)
                 if successo:
                     st.success("Appuntamento salvato e notificato!")
@@ -215,7 +218,7 @@ else:
                     ses = Session()
                     ses.login(cv_user, cv_pass)
                     st.success("Connessione stabilita!")
-                    successo, res = invia_notifica_whatsapp("🏫 *MYbro - ClasseViva*: Accesso effettuato con successo!")
+                    successo, res = invia_notifica_whatsapp("💼 *PagApp - ClasseViva*: Accesso effettuato con successo!")
                     if successo:
                         st.success("Notifica WhatsApp inviata!")
                 except Exception as e:
