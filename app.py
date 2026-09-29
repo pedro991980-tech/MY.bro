@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Stile CSS avanzato: PWA Meta Tags, Sfondo Ufficio, Card ad Alto Contrasto e Testo Ingrandito
+# Stile CSS avanzato: Contrasto elevato, testi scuri ben visibili e card pulite
 custom_css = """
     <head>
         <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,77 +28,72 @@ custom_css = """
     .viewerBadge_container__1QSob {display: none !important;}
     div[data-testid="stToolbar"] {display: none !important;}
     
-    /* Sfondo a tema ufficio/segreteria con overlay scuro per contrasto */
+    /* Sfondo generale dell'app */
     .stApp {
-        background: linear-gradient(rgba(240, 243, 246, 0.92), rgba(240, 243, 246, 0.92)), 
+        background: linear-gradient(rgba(240, 243, 246, 0.95), rgba(240, 243, 246, 0.95)), 
                     url("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80");
         background-size: cover;
         background-position: center;
     }
 
-    /* Ingrandimento del testo del 200% per massima accessibilità */
+    /* Testi generali grandi, scuri e ad altissima visibilità */
     html, body, [class*="css"] {
-        font-size: 1.25rem !important;
+        font-size: 1.3rem !important;
         color: #111111 !important;
     }
     
-    h1 {
-        font-size: 3rem !important;
+    h1, h2, h3, h4, h5, h6 {
+        color: #0b132b !important;
         font-weight: 800 !important;
-        color: #1e3d59 !important;
-    }
-    
-    h2, h3 {
-        font-size: 2.2rem !important;
-        font-weight: 700 !important;
-        color: #1e3d59 !important;
     }
 
-    p, label, span, div {
-        font-size: 1.25rem !important;
-        color: #2f3640 !important;
+    p, span, label, div, .stMarkdown {
+        color: #1c2541 !important;
+        font-weight: 600 !important;
     }
 
-    /* Creazione di Card bianche solide con bordi per isolare e rendere leggibile ogni blocco */
+    /* Contenitore principale / Card bianca solida per isolare e rendere leggibile ogni sezione */
     section.main > div {
-        background-color: #ffffff;
+        background-color: #ffffff !important;
         padding: 2.5rem;
         border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        border: 1px solid #dcdde1;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        border: 2px solid #cbd5e1;
         margin-top: 1rem;
         margin-bottom: 2rem;
     }
 
-    /* Pulsanti grandi, professionali e ad alto contrasto */
+    /* Pulsanti grandi, professionali e ben visibili */
     .stButton>button {
         border-radius: 12px;
-        font-size: 1.35rem !important;
+        font-size: 1.4rem !important;
         font-weight: 700 !important;
         padding: 0.85rem 1rem !important;
         width: 100%;
-        background-color: #0077b6 !important;
+        background-color: #1d4ed8 !important;
         color: #ffffff !important;
         border: none;
     }
     
     .stButton>button:hover {
-        background-color: #023e8a !important;
+        background-color: #1e40af !important;
     }
 
-    /* Campi di input ad alto contrasto con sfondi chiari solidi */
+    /* Campi di input con sfondi chiari e testo scuro nitido */
     input, select, textarea {
-        font-size: 1.25rem !important;
-        background-color: #f1f2f6 !important;
-        color: #111111 !important;
+        font-size: 1.3rem !important;
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+        font-weight: 700 !important;
         border-radius: 8px !important;
-        border: 1px solid #ced6e0 !important;
+        border: 2px solid #94a3b8 !important;
     }
     
     /* Etichette dei campi in grassetto scuro */
     .stTextInput label, .stSelectbox label, .stDateInput label, .stNumberInput label, .stRadio label {
-        font-weight: 700 !important;
-        color: #1e3d59 !important;
+        font-weight: 800 !important;
+        color: #0b132b !important;
+        font-size: 1.3rem !important;
     }
     </style>
 """
@@ -117,8 +112,8 @@ if "scansione_imp" not in st.session_state:
 
 if not st.session_state.avviato:
     st.markdown("<h1 style='text-align: center;'>💼 PagApp</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align: center; color: #0077b6;'>Gestione Appuntamenti e Pagamenti</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #485460;'>Il tuo assistente professionale integrato per pagamenti, veicoli, scuola e spese con notifiche WhatsApp.</p>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>Gestione Appuntamenti e Pagamenti</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Il tuo assistente professionale integrato per pagamenti, veicoli, scuola e spese con notifiche WhatsApp.</p>", unsafe_allow_html=True)
     
     col_1, col_2, col_3 = st.columns([1, 2, 1])
     with col_2:
