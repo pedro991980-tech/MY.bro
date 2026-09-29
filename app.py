@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Stile CSS avanzato: Contrasto elevato, testi scuri ben visibili e card pulite
+# Stile CSS avanzato: Risoluzione del problema di scorrimento a vuoto, testi scuri a contrasto elevato
 custom_css = """
     <head>
         <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,12 +28,14 @@ custom_css = """
     .viewerBadge_container__1QSob {display: none !important;}
     div[data-testid="stToolbar"] {display: none !important;}
     
-    /* Sfondo generale dell'app */
-    .stApp {
-        background: linear-gradient(rgba(240, 243, 246, 0.95), rgba(240, 243, 246, 0.95)), 
+    /* Blocca lo scorrimento a vuoto della pagina e imposta lo sfondo fisso */
+    html, body, [data-testid="stAppViewContainer"] {
+        background: linear-gradient(rgba(240, 243, 246, 0.96), rgba(240, 243, 246, 0.96)), 
                     url("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80");
         background-size: cover;
         background-position: center;
+        background-attachment: fixed;
+        overflow-x: hidden;
     }
 
     /* Testi generali grandi, scuri e ad altissima visibilità */
@@ -52,14 +54,14 @@ custom_css = """
         font-weight: 600 !important;
     }
 
-    /* Contenitore principale / Card bianca solida per isolare e rendere leggibile ogni sezione */
+    /* Contenitore principale stabile per evitare sfarfallii o rimbalzi dello scroll */
     section.main > div {
         background-color: #ffffff !important;
         padding: 2.5rem;
         border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         border: 2px solid #cbd5e1;
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         margin-bottom: 2rem;
     }
 
