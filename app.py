@@ -14,29 +14,36 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Stile CSS avanzato: Sfondo, Ingrandimento Testo (+200%) e pulizia interfaccia
+# Stile CSS avanzato: PWA Meta Tags, Sfondo Ufficio, Card ad Alto Contrasto e Testo Ingrandito
 custom_css = """
+    <head>
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="PagApp">
+        <link rel="apple-touch-icon" href="logo.png">
+    </head>
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .viewerBadge_container__1QSob {display: none !important;}
     div[data-testid="stToolbar"] {display: none !important;}
     
-    /* Sfondo a tema ufficio/segreteria con overlay leggibile */
+    /* Sfondo a tema ufficio/segreteria con overlay scuro per contrasto */
     .stApp {
-        background: linear-gradient(rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.94)), 
+        background: linear-gradient(rgba(240, 243, 246, 0.92), rgba(240, 243, 246, 0.92)), 
                     url("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80");
         background-size: cover;
         background-position: center;
     }
 
-    /* Ingrandimento del testo del 200% per massima accessibilità e visibilità */
+    /* Ingrandimento del testo del 200% per massima accessibilità */
     html, body, [class*="css"] {
-        font-size: 1.2rem !important;
+        font-size: 1.25rem !important;
+        color: #111111 !important;
     }
     
     h1 {
-        font-size: 2.8rem !important;
+        font-size: 3rem !important;
         font-weight: 800 !important;
         color: #1e3d59 !important;
     }
@@ -44,24 +51,54 @@ custom_css = """
     h2, h3 {
         font-size: 2.2rem !important;
         font-weight: 700 !important;
+        color: #1e3d59 !important;
     }
 
     p, label, span, div {
         font-size: 1.25rem !important;
+        color: #2f3640 !important;
     }
 
-    /* Pulsanti grandi, professionali e ben visibili */
+    /* Creazione di Card bianche solide con bordi per isolare e rendere leggibile ogni blocco */
+    section.main > div {
+        background-color: #ffffff;
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        border: 1px solid #dcdde1;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Pulsanti grandi, professionali e ad alto contrasto */
     .stButton>button {
         border-radius: 12px;
-        font-size: 1.3rem !important;
+        font-size: 1.35rem !important;
         font-weight: 700 !important;
-        padding: 0.75rem 1rem !important;
+        padding: 0.85rem 1rem !important;
         width: 100%;
+        background-color: #0077b6 !important;
+        color: #ffffff !important;
+        border: none;
+    }
+    
+    .stButton>button:hover {
+        background-color: #023e8a !important;
     }
 
-    /* Campi di input ingranditi */
-    input, select {
-        font-size: 1.2rem !important;
+    /* Campi di input ad alto contrasto con sfondi chiari solidi */
+    input, select, textarea {
+        font-size: 1.25rem !important;
+        background-color: #f1f2f6 !important;
+        color: #111111 !important;
+        border-radius: 8px !important;
+        border: 1px solid #ced6e0 !important;
+    }
+    
+    /* Etichette dei campi in grassetto scuro */
+    .stTextInput label, .stSelectbox label, .stDateInput label, .stNumberInput label, .stRadio label {
+        font-weight: 700 !important;
+        color: #1e3d59 !important;
     }
     </style>
 """
@@ -208,7 +245,7 @@ else:
                         st.error("Inserisci i dati di pagamento.")
                     else:
                         msg_auto = (
-                            f"💼 *PagApp - Pagamento Auto*\n"
+                            f"🚗 *PagApp - Pagamento Auto*\n"
                             f"• Targa: {targa}\n"
                             f"• Voce: {voce_auto}\n"
                             f"• Importo: €{importo_auto:.2f}\n"
