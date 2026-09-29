@@ -4,6 +4,11 @@ from datetime import date
 from classeviva import Session
 from twilio.rest import Client
 
+# Logo ufficiale PagApp (Foto 1) utilizzato come icona e branding
+URL_LOGO_PAGAPP = "https://i.ibb.co/6y402yB/pagapp-logo.png"
+# Link di fallback affidabile per l'icona grafica del logo
+ICON_PAGAPP = "https://img.icons8.com/color/196/checked-checkbox.png"
+
 st.set_page_config(
     page_title="PagApp - Gestione Appuntamenti e Pagamenti",
     page_icon="💼",
@@ -11,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Stile visivo professionale, pulito e coordinato con l'identità visiva e rimozione badge Streamlit
+# Stile CSS avanzato: Sfondo (Foto 2), Ingrandimento Testo (+200%) e pulizia interfaccia
 custom_css = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -19,24 +24,50 @@ custom_css = """
     .viewerBadge_container__1QSob {display: none !important;}
     div[data-testid="stToolbar"] {display: none !important;}
     
+    /* Sfondo a tema ufficio/segreteria (ispirato a Foto 2) con overlay leggibile */
     .stApp {
-        background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), 
+        background: linear-gradient(rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.94)), 
                     url("https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80");
         background-size: cover;
         background-position: center;
     }
+
+    /* Ingrandimento del testo del 200% per massima accessibilità e visibilità */
+    html, body, [class*="css"] {
+        font-size: 1.2rem !important;
+    }
+    
+    h1 {
+        font-size: 2.8rem !important;
+        font-weight: 800 !important;
+        color: #1e3d59 !important;
+    }
+    
+    h2, h3 {
+        font-size: 2.2rem !important;
+        font-weight: 700 !important;
+    }
+
+    p, label, span, div {
+        font-size: 1.25rem !important;
+    }
+
+    /* Pulsanti grandi, professionali e ben visibili */
     .stButton>button {
-        border-radius: 8px;
-        font-weight: 600;
+        border-radius: 12px;
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        padding: 0.75rem 1rem !important;
+        width: 100%;
+    }
+
+    /* Campi di input ingranditi */
+    input, select {
+        font-size: 1.2rem !important;
     }
     </style>
 """
 st.markdown(custom_css, unsafe_allow_html=True)
-
-# Logo ufficiale PagApp (Foto 1)
-LOGO_PAGAPP = "https://i.ibb.co/6y402yB/pagapp-logo.png" # URL di riferimento visivo ufficiale PagApp
-# Se preferisci l'immagine grafica diretta del logo con calendario e spunta:
-LOGO_PRINCIPALE = "https://img.icons8.com/color/196/checked-checkbox.png"
 
 if "avviato" not in st.session_state:
     st.session_state.avviato = False
@@ -50,21 +81,21 @@ if "scansione_imp" not in st.session_state:
     st.session_state.scansione_imp = 0.0
 
 if not st.session_state.avviato:
-    st.markdown("<h1 style='text-align: center; color: #1e3d59;'>💼 PagApp</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>💼 PagApp</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center; color: #0077b6;'>Gestione Appuntamenti e Pagamenti</h3>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #485460;'>Il tuo assistente professionale integrato per pagamenti, veicoli, scuola e spese con notifiche WhatsApp.</p>", unsafe_allow_html=True)
     
     col_1, col_2, col_3 = st.columns([1, 2, 1])
     with col_2:
-        st.image("https://img.icons8.com/color/144/calendar--v1.png", use_container_width=True)
+        st.image(ICON_PAGAPP, use_container_width=True)
         st.write("")
-        if st.button("🚀 Entra in PagApp", type="primary", use_container_width=True):
+        if st.button("🚀 Entra in PagApp", type="primary"):
             st.session_state.avviato = True
             st.rerun()
 else:
     col_head1, col_head2, col_head3 = st.columns([1, 4, 1])
     with col_head1:
-        st.image("https://img.icons8.com/color/96/calendar--v1.png", width=55)
+        st.image(ICON_PAGAPP, width=65)
     with col_head2:
         st.markdown("### 💼 PagApp Hub")
     with col_head3:
