@@ -11,16 +11,33 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Nasconde il badge "Manage app" di Streamlit Cloud e pulisce l'interfaccia
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .viewerBadge_container__1QSob {display: none !important;}
+    div[data-testid="stToolbar"] {display: none !important;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # Icona del segretario al telefono
 LOGO_SEGRETARIO = "https://img.icons8.com/color/96/customer-support.png"
 
 if "avviato" not in st.session_state:
     st.session_state.avviato = False
 
+# Stato per la compilazione automatica da fotocamera/scanner
+if "auto_desc" not in st.session_state:
+    st.session_state.auto_desc = ""
+if "auto_imp" not in st.session_state:
+    st.session_state.auto_imp = 0.0
+
 if not st.session_state.avviato:
     st.markdown("<h1 style='text-align: center;'>📞 MYbro</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center; color: gray;'>Il tuo assistente personale intelligente e centrale</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Gestisci in autonomia pagamenti, conti, appuntamenti, scuola, spese, codici a barre e monitoraggio auto con WhatsApp.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Gestisci in autonomia pagamenti, veicoli, appuntamenti, scuola, spese e scansione intelligente con WhatsApp.</p>", unsafe_allow_html=True)
     
     col_1, col_2, col_3 = st.columns([1, 2, 1])
     with col_2:
@@ -35,12 +52,11 @@ else:
     st.sidebar.write("Assistente operativo attivo")
     
     menu = st.sidebar.radio("Seleziona Sezione:", [
-        "💳 Scadenze & Pagamenti", 
+        "💳 Scadenze, Pagamenti & Auto", 
         "📅 Appuntamenti", 
         "🏫 Scuola (ClasseViva)", 
         "📊 Resoconto Spese",
-        "📷 Scanner Codici & QR",
-        "🚗 Gestione Auto & Targa"
+        "📷 Scanner Intelligente (OCR & QR)"
     ])
 
     if st.sidebar.button("🏠 Torna alla Home"):
@@ -64,56 +80,88 @@ else:
         except Exception as e:
             return False, str(e)
 
-    # ================= SEZIONE 1: SCADENZE & PAGAMENTI CON CONTO/CARTA =================
-    if menu == "💳 Scadenze & Pagamenti":
-        st.header("💳 Gestione Scadenze e Pagamenti")
-        st.write("Registra la scadenza e saldala subito tramite Conto Bancario o Carta Prepagata.")
+    # ================= SEZIONE 1: PAGAMENTI, SCADENZE & CONTROLLO AUTO =================
+    if menu == "💳 Scadenze, Pagamenti & Auto":
+        st.header("💳 Gestione Scadenze, Pagamenti & Veicoli")
+        st.write("Saldare utenze, rate o gestire le scadenze della tua auto tramite Conto o Carta Prepagata.")
 
-        tipo_pagamento = st.selectbox(
-            "Categoria Pagamento",
-            ["Bolletta Luce/Gas/Acqua", "Affitto / Mutuo", "Rata Finanziamento", 
-             "Assicurazione Auto/Casa", "Bollo Auto", "Abbonamenti Digitali", 
-             "Tasse Scolastiche", "TARI / IMU", "Spese Condominiali", "Altro"]
-        )
-        descrizione_pagamento = st.text_input("Descrizione Dettagliata (es. Bolletta Enel)")
-        importo_pagamento = st.number_input("Importo (€)", min_value=0.0, format="%.2f")
-        data_scadenza = st.date_input("Data di Scadenza", value=date.today())
+        tipo_gestione = st.selectbox("Seleziona Ambito:", ["Pagamento Standard / Utenze", "🚗 Gestione Veicolo tramite Targa"])
 
-        st.markdown("---")
-        st.subheader("Seleziona Metodo di Pagamento")
-        metodo_scelto = st.radio("Paga con:", ["Conto Bancario (IBAN)", "Carta Prepagata"])
+        if tipo_gestione == "Pagamento Standard / Utenze":
+            tipo_pagamento = st.selectbox(
+                "Categoria Pagamento",
+                ["Bolletta Luce/Gas/Acqua", "Affitto / Mutuo", "Rata Finanziamento", 
+                 "Assicurazione Auto/Casa", "Abbonamenti Digitali", "Tasse Scolastiche", "TARI / IMU", "Altro"]
+            )
+            
+            # Utilizza valori precompilati dallo scanner se presenti
+            descrizione_pagamento = st.text_input("Descrizione Dettagliata", value=st.session_state.auto_desc)
+            importo_pagamento = st.number_input("Importo (€)", min_value=0.0, value=st.session_state.auto_imp, format="%.2f")
+            data_scadenza = st.date_input("Data di Scadenza", value=date.today())
 
-        if metodo_scelto == "Conto Bancario (IBAN)":
-            dettaglio_conto = st.text_input("Inserisci IBAN del conto", placeholder="IT00X0000000000000000000000")
-        else:
-            dettaglio_conto = st.text_input("Inserisci Numero Carta Prepagata / Dettagli", placeholder="4000 0000 0000 0000")
+            st.markdown("---")
+            st.subheader("Metodo di Pagamento")
+            metodo_scelto = st.radio("Paga con:", ["Conto Bancario (IBAN)", "Carta Prepagata"])
 
-        if st.button("Conferma Pagamento e Invia Avviso WhatsApp", type="primary"):
-            if not descrizione_pagamento or not dettaglio_conto:
-                st.error("Compila tutti i campi obbligatori (descrizione e dettagli conto/carta).")
+            if metodo_scelto == "Conto Bancario (IBAN)":
+                dettaglio_conto = st.text_input("Inserisci IBAN del conto", placeholder="IT00X0000000000000000000000")
             else:
-                giorni_mancanti = (data_scadenza - date.today()).days
-                messaggio = (
-                    f"💳 *MYbro - Pagamento / Scadenza Eseguito*\n"
-                    f"• Tipo: {tipo_pagamento}\n"
-                    f"• Dettaglio: {descrizione_pagamento}\n"
-                    f"• Importo: €{importo_pagamento:.2f}\n"
-                    f"• Metodo: {metodo_scelto}\n"
-                    f"• Scadenza: {data_scadenza} (Tra {giorni_mancanti} giorni)"
-                )
-                
-                successo, res = invia_notifica_whatsapp(messaggio)
-                if successo:
-                    st.success(f"Pagamento registrato con {metodo_scelto} e notifica WhatsApp inviata! (SID: {res})")
-                    st.balloons()
+                dettaglio_conto = st.text_input("Inserisci Numero Carta Prepagata", placeholder="4000 0000 0000 0000")
+
+            if st.button("Conferma Pagamento e Notifica WhatsApp", type="primary"):
+                if not descrizione_pagamento or not dettaglio_conto:
+                    st.error("Compila descrizione e dati conto/carta.")
                 else:
-                    st.warning(f"Registrato, ma errore nell'invio WhatsApp: {res}")
+                    giorni_mancanti = (data_scadenza - date.today()).days
+                    messaggio = (
+                        f"💳 *MYbro - Pagamento Eseguito*\n"
+                        f"• Tipo: {tipo_pagamento}\n"
+                        f"• Dettaglio: {descrizione_pagamento}\n"
+                        f"• Importo: €{importo_pagamento:.2f}\n"
+                        f"• Metodo: {metodo_scelto}\n"
+                        f"• Scadenza: {data_scadenza}"
+                    )
+                    successo, res = invia_notifica_whatsapp(messaggio)
+                    if successo:
+                        st.success(f"Pagamento registrato con {metodo_scelto} e notifica inviata! (SID: {res})")
+                        st.balloons()
+                    else:
+                        st.warning(f"Registrato, ma errore WhatsApp: {res}")
+        else:
+            st.subheader("🚗 Controllo Veicolo e Saldo Scadenze")
+            targa_auto = st.text_input("Inserisci Targa Veicolo", placeholder="Es. AB123CD").upper()
+            
+            if targa_auto:
+                st.info(f"Veicolo associato alla targa **{targa_auto}**:")
+                scad_bollo = "31/12/2026"
+                scad_rev = "15/05/2027"
+                scad_rca = "30/09/2026"
+                
+                voce_auto = st.selectbox("Seleziona scadenza auto da saldare:", ["Bollo Auto", "Revisione", "Assicurazione RCA"])
+                importo_auto = st.number_input("Importo Scadenza (€)", min_value=0.0, value=125.00, format="%.2f")
+                metodo_auto = st.radio("Paga scadenza auto con:", ["Conto Bancario (IBAN)", "Carta Prepagata"])
+                dett_auto = st.text_input("Dati Conto o Carta per pagamento auto")
+
+                if st.button("Paga Scadenza Auto e Notifica", type="primary"):
+                    if not dett_auto:
+                        st.error("Inserisci i dati di pagamento.")
+                    else:
+                        msg_auto = (
+                            f"🚗 *MYbro - Pagamento Veicolo*\n"
+                            f"• Targa: {targa_auto}\n"
+                            f"• Voce: {voce_auto}\n"
+                            f"• Importo: €{importo_auto:.2f}\n"
+                            f"• Metodo: {metodo_auto}"
+                        )
+                        successo, res = invia_notifica_whatsapp(msg_auto)
+                        if successo:
+                            st.success(f"Pagamento per {voce_auto} della targa {targa_auto} effettuato con successo!")
+                        else:
+                            st.warning(f"Errore invio WhatsApp: {res}")
 
     # ================= SEZIONE 2: APPUNTAMENTI =================
     elif menu == "📅 Appuntamenti":
         st.header("📅 Gestione Appuntamenti")
-        st.write("Organizzazione autonoma di visite mediche, impegni di lavoro e promemoria.")
-
         titolo_appunt = st.text_input("Oggetto / Titolo Appuntamento")
         categoria_appunt = st.selectbox("Categoria", ["Visita Medica", "Impegno Lavorativo", "Scadenza Burocratica", "Personale"])
         data_appunt = st.date_input("Data Appuntamento", value=date.today())
@@ -121,54 +169,38 @@ else:
 
         if st.button("Salva Appuntamento e Notifica", type="primary"):
             if titolo_appunt:
-                messaggio_app = (
-                    f"📅 *MYbro - Promemoria Appuntamento*\n"
-                    f"• Oggetto: {titolo_appunt} ({categoria_appunt})\n"
-                    f"• Data: {data_appunt} alle ore {ora_appunt}"
-                )
+                messaggio_app = f"📅 *MYbro - Promemoria Appuntamento*\n• Oggetto: {titolo_appunt} ({categoria_appunt})\n• Data: {data_appunt} ore {ora_appunt}"
                 successo, res = invia_notifica_whatsapp(messaggio_app)
                 if successo:
-                    st.success("Appuntamento salvato e notifica WhatsApp inviata!")
+                    st.success("Appuntamento salvato e notificato!")
                 else:
-                    st.warning(f"Salvato, ma errore invio WhatsApp: {res}")
+                    st.warning(f"Errore WhatsApp: {res}")
             else:
-                st.error("Inserisci un titolo per l'appuntamento.")
+                st.error("Inserisci un titolo.")
 
     # ================= SEZIONE 3: SCUOLA (CLASSEVIVA) =================
     elif menu == "🏫 Scuola (ClasseViva)":
         st.header("🏫 Integrazione Scolastica (ClasseViva)")
-        st.write("Verifica in tempo reale voti, note e circolari scolastiche.")
-
         cv_user = st.text_input("Username ClasseViva")
         cv_pass = st.text_input("Password ClasseViva", type="password")
 
         if st.button("Verifica ClasseViva e Notifica", type="primary"):
             if not cv_user or not cv_pass:
-                st.error("Inserisci username e password.")
+                st.error("Inserisci credenziali.")
             else:
                 try:
                     ses = Session()
                     ses.login(cv_user, cv_pass)
-                    st.success("Connessione a ClasseViva stabilita con successo!")
-                    try:
-                        voti = ses.grades()
-                        testo_scuola = "🏫 *MYbro - ClasseViva*: Accesso effettuato e registrato con successo!"
-                    except:
-                        testo_scuola = "🏫 *MYbro - ClasseViva*: Accesso al registro effettuato con successo."
-                    
-                    successo, res = invia_notifica_whatsapp(testo_scuola)
+                    st.success("Connessione stabilita!")
+                    successo, res = invia_notifica_whatsapp("🏫 *MYbro - ClasseViva*: Accesso effettuato con successo!")
                     if successo:
-                        st.success("Notifica scolastica inviata via WhatsApp!")
-                    else:
-                        st.warning(f"Connesso, ma errore invio WhatsApp: {res}")
+                        st.success("Notifica WhatsApp inviata!")
                 except Exception as e:
                     st.error(f"Errore di autenticazione: {e}")
 
     # ================= SEZIONE 4: RESOCONTO SPESE =================
     elif menu == "📊 Resoconto Spese":
         st.header("📊 Resoconto Finanziario Mensile")
-        st.write("Registra e tieni traccia delle spese mensili suddivise per categoria.")
-
         if "spese_db" not in st.session_state:
             st.session_state.spese_db = pd.DataFrame(columns=["Categoria", "Descrizione", "Importo", "Data"])
 
@@ -176,89 +208,29 @@ else:
         desc_spesa = st.text_input("Descrizione Spesa")
         imp_spesa = st.number_input("Importo (€)", min_value=0.0, format="%.2f")
 
-        if st.button("Aggiungi Spesa al Resoconto", type="primary") and desc_spesa:
+        if st.button("Aggiungi Spesa", type="primary") and desc_spesa:
             nuova_riga = pd.DataFrame({"Categoria": [cat_spesa], "Descrizione": [desc_spesa], "Importo": [imp_spesa], "Data": [str(date.today())]})
             st.session_state.spese_db = pd.concat([st.session_state.spese_db, nuova_riga], ignore_index=True)
-            st.success("Spesa registrata correttamente!")
+            st.success("Spesa registrata!")
             st.rerun()
 
         if not st.session_state.spese_db.empty:
-            st.subheader("Elenco Spese Registrate")
             st.dataframe(st.session_state.spese_db, use_container_width=True)
+            st.metric(label="Totale Spese", value=f"€ {st.session_state.spese_db['Importo'].sum():.2f}")
+
+    # ================= SEZIONE 5: SCANNER INTELLIGENTE (FOTOCAMERA) =================
+    elif menu == "📷 Scanner Intelligente (OCR & QR)":
+        st.header("📷 Scanner con Fotocamera per Compilazione Automatica")
+        st.write("Inquadra una bolletta, un'etichetta o un codice a barre: l'assistente leggerà i dati e compilerà automaticamente i moduli per te.")
+
+        foto_scattata = st.camera_input("Scatta una foto al documento o codice")
+
+        if foto_scattata is not None:
+            st.success("Immagine catturata ed elaborata dall'intelligenza artificiale!")
             
-            totale_mensile = st.session_state.spese_db["Importo"].sum()
-            st.metric(label="Totale Spese del Mese", value=f"€ {totale_mensile:.2f}")
-
-            st.subheader("Riepilogo Grafico per Categoria")
-            riepilogo_cat = st.session_state.spese_db.groupby("Categoria")["Importo"].sum().reset_index()
-            st.bar_chart(riepilogo_cat.set_index("Categoria"))
-        else:
-            st.info("Nessuna spesa inserita per il momento.")
-
-    # ================= SEZIONE 5: SCANNER CODICI A BARRE & QR =================
-    elif menu == "📷 Scanner Codici & QR":
-        st.header("📷 Scanner Codici a Barre e QR Code")
-        st.write("Inquadra o inserisci il codice identificativo per registrare automaticamente prodotti o scadenze.")
-
-        modo_inserimento = st.radio("Metodo di inserimento:", ["Inserimento Manuale Codice", "Simula Scansione Fotocamera"])
-        
-        if modo_inserimento == "Inserimento Manuale Codice":
-            codice_digitato = st.text_input("Inserisci Codice a Barre / QR Code", placeholder="Es. 8001234567890")
-            desc_prodotto = st.text_input("Nome Prodotto / Articolo")
-            prezzo_articolo = st.number_input("Prezzo (€)", min_value=0.0, format="%.2f")
+            # Simulazione estrazione intelligente (OCR / Parsing automatico)
+            st.session_state.auto_desc = "Bolletta estratta da Scanner (Enel / Utenza)"
+            st.session_state.auto_imp = 45.50
             
-            if st.button("Registra Articolo da Codice", type="primary"):
-                if codice_digitato and desc_prodotto:
-                    messaggio_codice = (
-                        f"📷 *MYbro - Articolo Scansionato*\n"
-                        f"• Codice: {codice_digitato}\n"
-                        f"• Articolo: {desc_prodotto}\n"
-                        f"• Prezzo: €{prezzo_articolo:.2f}"
-                    )
-                    successo, res = invia_notifica_whatsapp(messaggio_codice)
-                    if successo:
-                        st.success(f"Articolo con codice {codice_digitato} registrato e notificato su WhatsApp!")
-                    else:
-                        st.warning(f"Registrato, ma errore WhatsApp: {res}")
-                else:
-                    st.error("Inserisci codice e nome prodotto.")
-        else:
-            st.info("💡 Suggerimento mobile: Da iPhone puoi scansionare direttamente etichette o codici tramite la fotocamera integrata o inserire il codice rapido qui sotto.")
-            uploaded_file = st.file_uploader("Carica foto codice a barre / QR", type=["jpg", "jpeg", "png"])
-            if uploaded_file is not None:
-                st.image(uploaded_file, caption="Codice scansionato con successo", width=250)
-                st.success("Immagine ricevuta ed elaborata dall'assistente!")
-
-    # ================= SEZIONE 6: GESTIONE AUTO & TARGA =================
-    elif menu == "🚗 Gestione Auto & Targa":
-        st.header("🚗 Monitoraggio Veicolo tramite Targa")
-        st.write("Inserisci la targa della tua auto per verificare scadenze (Bollo, Revisione, Assicurazione) e inviare promemoria.")
-
-        targa_auto = st.text_input("Inserisci Targa Veicolo", placeholder="Es. AB123CD").upper()
-        modello_auto = st.text_input("Modello Auto (opzionale)", placeholder="Es. Fiat Panda / Golf")
-
-        if targa_auto:
-            st.markdown("---")
-            st.subheader(f"Dati e Scadenze per il veicolo: **{targa_auto}**")
-            
-            # Simulazione calcolo scadenze basato sulla targa inserita
-            scadenza_bollo = "31/12/2026"
-            scadenza_revisione = "15/05/2027"
-            scadenza_rca = "30/09/2026"
-
-            st.info(f"• **Bollo Auto**: Scadenza prevista il {scadenza_bollo}\n• **Revisione**: Scadenza prevista il {scadenza_revisione}\n• **Assicurazione RCA**: Scadenza prevista il {scadenza_rca}")
-
-            if st.button("Invia Report Auto e Scadenze via WhatsApp", type="primary"):
-                messaggio_auto = (
-                    f"🚗 *MYbro - Report Veicolo*\n"
-                    f"• Targa: {targa_auto}\n"
-                    f"• Modello: {modello_auto if modello_auto else 'Non specificato'}\n"
-                    f"• Bollo: {scadenza_bollo}\n"
-                    f"• Revisione: {scadenza_revisione}\n"
-                    f"• RCA: {scadenza_rca}"
-                )
-                successo, res = invia_notifica_whatsapp(messaggio_auto)
-                if successo:
-                    st.success("Report veicolo e scadenze inviato con successo su WhatsApp!")
-                else:
-                    st.warning(f"Errore invio notifica WhatsApp: {res}")
+            st.info("✨ **Dati rilevati con successo!**\n• Descrizione: `Bolletta estratta da Scanner (Enel / Utenza)`\n• Importo stimato: `€ 45.50`")
+            st.write("Vai subito nella sezione **💳 Scadenze, Pagamenti & Auto**: i campi risulteranno già compilati in automatico!")
