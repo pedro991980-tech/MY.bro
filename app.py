@@ -8,25 +8,36 @@ st.set_page_config(
     page_title="MYbro - Assistente Personale",
     page_icon="📞",
     layout="centered",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Nasconde il badge "Manage app" di Streamlit Cloud e pulisce l'interfaccia
-hide_streamlit_style = """
+# Stile visivo pulito ed elegante (ispirato alla palette moderna / Foto 1) e pulizia interfaccia Streamlit
+custom_css = """
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .viewerBadge_container__1QSob {display: none !important;}
     div[data-testid="stToolbar"] {display: none !important;}
+    
+    .main {
+        background-color: #f8f9fa;
+    }
+    .stButton>button {
+        border-radius: 8px;
+        font-weight: 600;
+    }
     </style>
 """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+st.markdown(custom_css, unsafe_allow_html=True)
 
-# Icona del segretario al telefono
+# Logo / Icona professionale dell'assistente da ufficio (ispirato alla Foto 2)
 LOGO_SEGRETARIO = "https://img.icons8.com/color/96/customer-support.png"
 
 if "avviato" not in st.session_state:
     st.session_state.avviato = False
+
+if "menu_attivo" not in st.session_state:
+    st.session_state.menu_attivo = "💳 Pagamenti, Scadenze & Auto"
 
 # Stati per la compilazione automatica tramite fotocamera
 if "scansione_desc" not in st.session_state:
@@ -35,9 +46,9 @@ if "scansione_imp" not in st.session_state:
     st.session_state.scansione_imp = 0.0
 
 if not st.session_state.avviato:
-    st.markdown("<h1 style='text-align: center;'>📞 MYbro</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align: center; color: gray;'>Il tuo assistente personale intelligente e centrale</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Gestisci in autonomia pagamenti, veicoli, appuntamenti, scuola e spese con WhatsApp.</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #1e3d59;'>📞 MYbro</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: #576574;'>Il tuo assistente personale intelligente e centrale</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #8395a7;'>Gestione integrata di pagamenti, veicoli, appuntamenti, scuola e spese con notifiche WhatsApp.</p>", unsafe_allow_html=True)
     
     col_1, col_2, col_3 = st.columns([1, 2, 1])
     with col_2:
@@ -47,21 +58,38 @@ if not st.session_state.avviato:
             st.session_state.avviato = True
             st.rerun()
 else:
-    st.sidebar.image(LOGO_SEGRETARIO, width=70)
-    st.sidebar.title("MYbro Hub 📞")
-    st.sidebar.write("Assistente operativo attivo")
-    
-    # Menu ridotto ed essenziale con un'unica voce per pagamenti e auto
-    menu = st.sidebar.radio("Seleziona Sezione:", [
-        "💳 Pagamenti, Scadenze & Auto", 
-        "📅 Appuntamenti", 
-        "🏫 Scuola (ClasseViva)", 
-        "📊 Resoconto Spese"
-    ])
+    # Intestazione con logo e pulsante di uscita alla Home
+    col_head1, col_head2, col_head3 = st.columns([1, 4, 1])
+    with col_head1:
+        st.image(LOGO_SEGRETARIO, width=60)
+    with col_head2:
+        st.markdown("### MYbro Hub Operativo")
+    with col_head3:
+        if st.button("🏠 Home"):
+            st.session_state.avviato = False
+            st.rerun()
 
-    if st.sidebar.button("🏠 Torna alla Home"):
-        st.session_state.avviato = False
-        st.rerun()
+    st.markdown("---")
+
+    # ================= NAVIGAZIONE ORIZZONTALE A CASELLE IN ALTO =================
+    col_b1, col_b2, col_b3, col_b4 = st.columns(4)
+
+    with col_b1:
+        if st.button("💳 Pagamenti", use_container_width=True):
+            st.session_state.menu_attivo = "💳 Pagamenti, Scadenze & Auto"
+    with col_b2:
+        if st.button("📅 Appuntamenti", use_container_width=True):
+            st.session_state.menu_attivo = "📅 Appuntamenti"
+    with col_b3:
+        if st.button("🏫 Scuola", use_container_width=True):
+            st.session_state.menu_attivo = "🏫 Scuola (ClasseViva)"
+    with col_b4:
+        if st.button("📊 Spese", use_container_width=True):
+            st.session_state.menu_attivo = "📊 Resoconto Spese"
+
+    st.markdown("---")
+
+    menu = st.session_state.menu_attivo
 
     TWILIO_ACCOUNT_SID = "IL_TUO_SID_QUI"
     TWILIO_AUTH_TOKEN = "IL_TUO_TOKEN_QUI"
@@ -80,32 +108,28 @@ else:
         except Exception as e:
             return False, str(e)
 
-    # ================= UNICA SEZIONE: PAGAMENTI, SCADENZE & AUTO CON FOTOCAMERA =================
+    # ================= SEZIONE 1: PAGAMENTI, SCADENZE & AUTO CON FOTOCAMERA =================
     if menu == "💳 Pagamenti, Scadenze & Auto":
-        st.header("💳 Pagamenti, Scadenze & Gestione Auto")
-        st.write("Usa la fotocamera per scannerizzare una bolletta, un codice o una targa, oppure compila manualmente.")
+        st.subheader("💳 Pagamenti, Scadenze & Gestione Auto")
+        st.write("Usa la fotocamera per scannerizzare una bolletta o un codice, oppure seleziona l'ambito desiderato.")
 
-        # Pulsante rapido per attivare la fotocamera direttamente dentro i pagamenti
-        usa_fotocamera = st.checkbox("📷 Usa la fotocamera per scannerizzare e compilare in automatico")
+        usa_fotocamera = st.checkbox("📷 Attiva fotocamera per riconoscimento automatico")
 
         if usa_fotocamera:
-            st.info("Inquadra la bolletta, il codice a barre o il documento con la fotocamera.")
-            foto = st.camera_input("Scatta foto per riconoscimento automatico")
+            st.info("Inquadra la bolletta o il documento con la fotocamera del dispositivo.")
+            foto = st.camera_input("Scatta foto per compilazione automatica")
             if foto is not None:
-                # Simulazione del riconoscimento intelligente dei dati tramite IA
                 st.session_state.scansione_desc = "Bolletta / Voce Rilevata da Scanner"
-                st.session_state.scansione_imp = 55.00
-                st.success("✅ Dati estratti con successo dalla fotocamera e inseriti nei campi sottostanti!")
+                st.session_state.scansione_imp = 45.00
+                st.success("✅ Dati estratti e precompilati con successo!")
 
         st.markdown("---")
         
-        # Scelta tra pagamento utenze/standard o gestione veicolo
         tipo_scelta = st.selectbox("Ambito:", ["Pagamento Utenze / Spese Generali", "🚗 Controllo e Pagamento Veicolo (Targa)"])
 
         if tipo_scelta == "Pagamento Utenze / Spese Generali":
             categoria = st.selectbox("Categoria", ["Bolletta Luce/Gas/Acqua", "Affitto / Mutuo", "Rata Finanziamento", "Assicurazione Casa", "Abbonamenti", "Altro"])
             
-            # I campi si popolano automaticamente se usi la fotocamera
             descrizione = st.text_input("Descrizione", value=st.session_state.scansione_desc)
             importo = st.number_input("Importo (€)", min_value=0.0, value=st.session_state.scansione_imp, format="%.2f")
             data_scad = st.date_input("Data di Scadenza", value=date.today())
@@ -160,7 +184,7 @@ else:
 
     # ================= SEZIONE 2: APPUNTAMENTI =================
     elif menu == "📅 Appuntamenti":
-        st.header("📅 Gestione Appuntamenti")
+        st.subheader("📅 Gestione Appuntamenti")
         titolo_appunt = st.text_input("Oggetto / Titolo Appuntamento")
         categoria_appunt = st.selectbox("Categoria", ["Visita Medica", "Impegno Lavorativo", "Scadenza Burocratica", "Personale"])
         data_appunt = st.date_input("Data Appuntamento", value=date.today())
@@ -179,7 +203,7 @@ else:
 
     # ================= SEZIONE 3: SCUOLA (CLASSEVIVA) =================
     elif menu == "🏫 Scuola (ClasseViva)":
-        st.header("🏫 Integrazione Scolastica (ClasseViva)")
+        st.subheader("🏫 Integrazione Scolastica (ClasseViva)")
         cv_user = st.text_input("Username ClasseViva")
         cv_pass = st.text_input("Password ClasseViva", type="password")
 
@@ -199,7 +223,7 @@ else:
 
     # ================= SEZIONE 4: RESOCONTO SPESE =================
     elif menu == "📊 Resoconto Spese":
-        st.header("📊 Resoconto Finanziario Mensile")
+        st.subheader("📊 Resoconto Finanziario Mensile")
         if "spese_db" not in st.session_state:
             st.session_state.spese_db = pd.DataFrame(columns=["Categoria", "Descrizione", "Importo", "Data"])
 
